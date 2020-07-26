@@ -18,27 +18,30 @@ typedef struct point
     float y;
 } point_t;
 
-static point_t* make_point(float x, float y)
-{
-    point_t* p = malloc(sizeof(point_t));
-    p->x = x;
-    p->y = y;
+// static point_t* make_point(float x, float y)
+// {
+//     point_t* p = malloc(sizeof(point_t));
+//     p->x = x;
+//     p->y = y;
 
-    return p;
-}
+//     return p;
+// }
 
-static void delete_point(void* p)
-{
-    point_t* as_point = (point_t*)p;
-    free(as_point);
-}
+// static void delete_point(void* p)
+// {
+//     point_t* as_point = (point_t*)p;
+//     free(as_point);
+// }
 
 // ----------------------------------------------------------------------------
 // Test Cases
 
 START_TEST(test_hashmap_new)
 {
-    ck_assert(true);
+    hashmap_t* map = hashmap_new();
+    ck_assert(map != NULL);
+
+    hashmap_delete(map);
 }
 END_TEST
 

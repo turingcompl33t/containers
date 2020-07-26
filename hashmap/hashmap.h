@@ -7,63 +7,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <pthread.h>
+#include "hashmap_attr.h"
 
-typedef uint64_t hash_t;
+// The hashmap type.
+typedef struct hashmap hashmap_t;
 
-typedef bool   (*comparator_f) (void*, void*);
-typedef void   (*deleter_f)    (void*, void*);
-typedef hash_t (*hasher_f)     (void*);
-
-typedef struct bucket_elem
-{
-    struct bucket_elem* next;
-
-    // memoized hash value
-    hash_t hash;
-
-    void* key;    // inserted key
-    void* value;  // inserted value
-} bucket_elem_t;
-
-typedef struct bucket
-{
-    bucket_elem_t*   first;
-    pthread_rwlock_t lock;
-} bucket_t;
-
-typedef struct concurrent_hashmap
-{
-    comparator_f comparator; // key comparator
-    deleter_f    deleter;    // key/value deleter
-    hasher_f     hasher;     // key hasher
-
-    // total count of items in map
-    size_t n_items;
-
-    // dynamic array of buckets
-    bucket_t* buckets;
-    size_t    n_buckets;
-} concurrent_hashmap_t;
-
-// map_new()
+// hashmap_new()
 //
 // Construct a new map.
 //
 // Returns:
 //  pointer to newly initialized map
 //  NULL on failure
-concurrent_hashmap_t* map_new(
-    comparator_f comparator,
-    deleter_f    deleter,
-    hasher_f     hasher);
+hashmap_t* hashmap_new(void);
+
+// hashmap_new_with_attr()
+//
+// Construct a new map with attributes specified
+// by the provided attributes structure.
+hashmap_t* hashmap_new_with_attr(hashmap_attr_t* attr);
 
 // map_delete()
 //
-// Destroy an existing map.
-void map_delete(concurrent_hashmap_t* map);
+// Destroy an existing map instance.
+void hashmap_delete(hashmap_t* map);
 
-// map_insert()
+// hashmap_insert()
 //
 // Insert a new element into the map.
 //
@@ -78,59 +47,38 @@ void map_delete(concurrent_hashmap_t* map);
 // is returned.
 //
 // Returns:
-//  true on successful insertion of new element
-//  false on failed insertion
-void* map_insert(
-    concurrent_hashmap_t* map, 
-    void* key, 
-    void* value,
-    void* existing);
+//  `true` on successful insertion of new element
+//  `false` on failed insertion
+bool hashmap_insert(
+    hashmap_t* map, 
+    void*      key, 
+    void*      value,
+    void**     replaced);
 
-// map_update()
+// hashmap_remove()
 //
-// Update the value associated with the specified key.
-//
-// This update operation is restricted to updating
-// EXISTING elements in the map. That is, if an 
-// element with the specified key does not exist
-// in the map at the time this function is invoked,
-// the element is NOT inserted into the map, and NULL
-// is returned.
-//
-// Returns:
-//  pointer to previous value on successful update
-//  NULL on failed update
-void* map_update(
-    concurrent_hashmap_t* map,
-    void* key,
-    void* value);
-
-// map_remove()
 // Remove an existing item from the map.
 //
 // Returns:
-//  true if the element with specified key is removed
-//  false otherwise
-bool map_remove(
-    concurrent_hashmap_t* map, 
-    void* key);
+//  `true` if the element with specified key is removed
+//  `false` otherwise
+bool hashmap_remove(hashmap_t* map, void* key);
 
-// map_find()
+// hashmap_find()
+//
 // Search the map for the specified key.
 //
 // Returns:
-//  pointer to the key on success
+//  A pointer to the key on success
 //  NULL if key not present in map
-void* map_find(
-    concurrent_hashmap_t* map, 
-    void* key);
+void* hashmap_find(hashmap_t* map, void* key);
 
-// map_contains()
+// hashmap_contains()
 // Determine if the map contains the specified key.
 //
 // Returns:
-//  true if map contains the specified key
-//  false otherwise
-bool map_contains(concurrent_hashmap_t* map, void* key);
+//  `true` if map contains the specified key
+//  `false` otherwise
+bool hashmap_contains(hashmap_t* map, void* key);
 
-#endif  // CONCURRENT_HASHMAP_H
+#endif  // HASHMAP_H

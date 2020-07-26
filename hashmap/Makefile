@@ -1,21 +1,21 @@
 # hashmap/Makefile
 #
-# Makefile for flat hashmap data structure.
+# Makefile for chaining hashmap data structure.
 
 CC = gcc
 CFLAGS = -Wall -Werror -std=gnu11 -ggdb
 
 CHECK_FLAGS = $(shell pkg-config --cflags --libs check)
 
-LIB = hashmap
+OBJS = hashmap.o hashmap_attr.o intrusive_list.o murmur3.o
 
-lib: $(LIB).o murmur3.o
-
-$(LIB).o: $(LIB).c $(LIB).h
+hashmap.o: hashmap.c hashmap.h
+hashmap_attr.o: hashmap_attr.c hashmap_attr.h
+intrusive_list.o: intrusive_list.c intrusive_list.h
 murmur3.o: murmur3.c murmur3.h
 
-driver: lib
-	$(CC) $(CFLAGS) check.c $(LIB).o murmur3.o -o check $(CHECK_FLAGS)
+driver: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) check.c -o check $(CHECK_FLAGS)
 
 check: driver
 	./check
@@ -23,5 +23,4 @@ check: driver
 clean:
 	rm -f *~
 	rm -f *.o
-	rm -f $(LIB).o
 	rm -f check
