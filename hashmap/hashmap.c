@@ -578,6 +578,13 @@ static void resize_map(hashmap_t* map)
 {
     lock_map_resize(map);
 
+    if (!need_resize(map->n_items + 1, map->n_buckets, map->load_factor))
+    {
+        // we lost a race to perform the resize, abort
+        unlock_map(map);
+        return;
+    }
+
     // we now have exclusive access to the entire map
 
     // double the capacity of the map on resize
