@@ -5,6 +5,9 @@
 
 #include <stdlib.h>
 
+static void unlink_entry(list_entry_t* entry);
+static bool list_is_empty(list_entry_t* head);
+
 // ----------------------------------------------------------------------------
 // Exported
 
@@ -116,52 +119,6 @@ list_entry_t* list_find(list_entry_t* head, finder_f finder, void* ctx)
     }
 
     return found ? current : NULL;
-}
-
-list_entry_t* list_pop_front_if(
-    list_entry_t* head, 
-    predicate_f pred, 
-    void* ctx)
-{
-    if (NULL == head || NULL == pred || list_is_empty(head))
-    {
-        return NULL;
-    }
-
-    list_entry_t* front = head->flink;
-
-    if (pred(front, ctx))
-    {
-        unlink_entry(front);
-        return front;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-list_entry_t* list_pop_back_if(
-    list_entry_t* head, 
-    predicate_f pred, 
-    void* ctx)
-{
-    if (NULL == head || NULL == pred || list_is_empty(head))
-    {
-        return NULL;
-    }
-
-    list_entry_t* back = head->blink;
-
-    if (pred(back, ctx))
-    {
-        unlink_entry(back);
-        return back;
-    }
-    else
-    {
-        return NULL;
-    }
 }
 
 // ----------------------------------------------------------------------------

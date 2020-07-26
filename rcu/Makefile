@@ -1,27 +1,33 @@
-# flat-map/Makefile
+# rcu/Makefile
 #
-# Makefile for flat hashmap data structure.
+# Makefile for RCU system.
+
+MAKE = make
+
+S = ../sync
 
 CC = gcc
 CFLAGS = -Wall -Werror -std=gnu11 -ggdb
 
 CHECK_FLAGS = $(shell pkg-config --cflags --libs check)
 
-LIB = flat_map
+LIB = rcu.a
+OBJS = rcu.o gc.o priority_queue.o intrusive_list.o $S/event.o
 
-lib: $(LIB).o murmur3.o
+$(LIB): $(OBJS)
+	ar cr $@ $^
 
-$(LIB).o: $(LIB).c $(LIB).h
-murmur3.o: murmur3.c murmur3.h
+rcu.o: rcu.c rcu.h
+gc.o: gc.c gc.h
+priority_queue.o: priority_queue.c priority_queue.h
+intrusive_list.o: intrusive_list.c intrusive_list.h
 
-driver: lib
-	$(CC) $(CFLAGS) check.c $(LIB).o murmur3.o -o check $(CHECK_FLAGS)
-
-check: driver
-	./check
+driver: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) test/driver.c -o driver -pthread
 
 clean:
 	rm -f *~
 	rm -f *.o
-	rm -f $(LIB).o
-	rm -f check
+	rm -f $(LIB)
+	rm -f driver
+	cd ../sync; $(MAKE) clean

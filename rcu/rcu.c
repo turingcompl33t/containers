@@ -35,13 +35,13 @@ void rcu_leave(gc_t* gc, rcu_handle_t handle)
 // ----------------------------------------------------------------------------
 // Exported: Writer Interface
 
-void rcu_defer(gc_t* gc)
+void rcu_defer(gc_t* gc, deleter_f deleter, void* object)
 {
-    // TODO
+    gc_defer_destroy(gc, deleter, object);
 }
 
 void rcu_synchronize(gc_t* gc)
 {
-    // TODO
     const size_t prev_gen = gc_inc_generation(gc);
+    gc_collect_through_generation(gc, prev_gen);
 }

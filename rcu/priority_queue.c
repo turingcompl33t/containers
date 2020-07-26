@@ -26,6 +26,8 @@ struct queue
 static item_t* new_item(void* data);
 static void destroy_item(item_t* item);
 
+static bool queue_is_empty(queue_t* queue);
+
 // ----------------------------------------------------------------------------
 // Exported
 
@@ -62,13 +64,13 @@ bool queue_push(queue_t* queue, void* data)
 {
     if (NULL == queue)
     {
-        return;
+        return false;
     }
 
     item_t* item = new_item(data);
     if (NULL == item)
     {
-        return;
+        return false;
     }
 
     item_t* prev = NULL;
@@ -107,7 +109,7 @@ void* queue_pop(queue_t* queue)
     queue->head = popped->next;
 
     void* data = popped->data;
-    free(popped);
+    destroy_item(popped);
 
     return data;
 }
@@ -128,7 +130,7 @@ void* queue_pop_if(queue_t* queue, predicate_f pred, void* ctx)
     queue->head = popped->next;
 
     void* data = popped->data;
-    free(popped);
+    destroy_item(popped);
 
     return data;
 }

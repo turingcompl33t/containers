@@ -6,3 +6,4 @@ Experiments in high(er)-performance data structures in C.
 - [flat_map](./flat-map) A concurrent hashmap utilizing open addressing with linear probing and supporting configurable concurrency parameters.
 - [hashmap](./hashmap) A concurrent hashmap utilizing separate chaining.
 - [rcu](./rcu) A multi-reader, single-writer RCU memory reclamation system.
+- [sync](./sync) Assorted higher-level synchronization constructs.
