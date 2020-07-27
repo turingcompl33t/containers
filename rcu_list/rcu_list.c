@@ -105,7 +105,10 @@ void list_delete(rcu_list_t* list)
     free(list);
 }
 
-void list_push_front(rcu_list_t* list, void* data)
+void list_push_front(
+    rcu_list_t*     list, 
+    void*           data, 
+    write_handle_t* handle)
 {
     if (NULL == list)
     {
@@ -140,7 +143,11 @@ void list_push_front(rcu_list_t* list, void* data)
     unlock_for_write(list);
 }
 
-void list_push_back(rcu_list_t* list, void* data)
+
+void list_push_back(
+    rcu_list_t*     list, 
+    void*           data, 
+    write_handle_t* handle)
 {
     if (NULL == list)
     {
@@ -175,7 +182,10 @@ void list_push_back(rcu_list_t* list, void* data)
     unlock_for_write(list);
 }
 
-void list_erase(rcu_list_t* list, iterator_t iter)
+void list_erase(
+    rcu_list_t*     list, 
+    iterator_t      iter, 
+    write_handle_t* handle)
 {
     if (NULL == list || NULL == iter.entry)
     {
@@ -221,9 +231,10 @@ void list_erase(rcu_list_t* list, iterator_t iter)
 }
 
 iterator_t list_find(
-    rcu_list_t* list, 
-    void*       data, 
-    finder_f    finder)
+    rcu_list_t*    list, 
+    void*          data, 
+    finder_f       finder,
+    read_handle_t* handle)
 {
     // initialize an invalid iterator
     iterator_t iter = {
@@ -252,12 +263,43 @@ iterator_t list_find(
     return iter;
 }
 
+iterator_t list_begin(
+    rcu_list_t*    list, 
+    read_handle_t* handle)
+{
+    iterator_t iter = {
+        .entry = NULL
+    };
+
+    if (NULL == list)
+    {
+        return iter;
+    }
+
+    list_node_t* head;
+    __atomic_load(&list->head, &head, __ATOMIC_SEQ_CST);
+
+    iter.entry = head;
+    return iter;
+}
+
+iterator_t list_end(
+    rcu_list_t*    list, 
+    read_handle_t* handle)
+{
+    iterator_t iter = {
+        .entry = NULL
+    };
+
+    return iter;
+}
+
 // ----------------------------------------------------------------------------
 // Exported: Iterator Interface
 
 void* iterator_get(iterator_t* iter)
 {
-    return (NULL == iter) ? NULL : iter->entry;
+    return (NULL == iter) ? NULL : iter->entry->data;
 }
 
 // ----------------------------------------------------------------------------
@@ -300,7 +342,7 @@ void rcu_read_lock(read_handle_t* handle)
     {
         __atomic_store(&z_node->next, &old_head, __ATOMIC_SEQ_CST);
 
-    } while (!__atomic_compare_exchange(&list->head, &old_head, 
+    } while (!__atomic_compare_exchange(&list->zombie_head, &old_head, 
         &z_node, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST));
 }
 

@@ -35,16 +35,33 @@ rcu_list_t* list_new_with_deleter(deleter_f deleter);
 
 void list_delete(rcu_list_t* list);
 
-void list_push_front(rcu_list_t* list, void* data);
+void list_push_front(
+    rcu_list_t*     list, 
+    void*           data, 
+    write_handle_t* handle);
 
-void list_push_back(rcu_list_t* list, void* data);
+void list_push_back(
+    rcu_list_t*     list, 
+    void*           data, 
+    write_handle_t* handle);
 
-void list_erase(rcu_list_t* list, iterator_t iter);
+void list_erase(
+    rcu_list_t*     list, 
+    iterator_t      iter, 
+    write_handle_t* handle);
 
 iterator_t list_find(
-    rcu_list_t* list, 
-    void*       data, 
-    finder_f    finder);
+    rcu_list_t*    list, 
+    void*          data, 
+    finder_f       finder,
+    read_handle_t* handle);
+
+iterator_t list_begin(
+    rcu_list_t*    list, 
+    read_handle_t* handle);
+iterator_t list_end(
+    rcu_list_t*    list, 
+    read_handle_t* handle);
 
 // ----------------------------------------------------------------------------
 // Exported: Iterator Interface

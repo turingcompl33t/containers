@@ -3,7 +3,7 @@
 # Makefile for chaining hashmap data structure.
 
 CC = gcc
-CFLAGS = -Wall -Werror -std=gnu11 -ggdb
+CFLAGS = -Wall -std=gnu11 -ggdb
 
 CHECK_FLAGS = $(shell pkg-config --cflags --libs check)
 
